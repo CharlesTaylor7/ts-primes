@@ -95,7 +95,6 @@ type Digit = Under<10>;
 type arrayLength = ['a', 'b', 'c']['length'];
 type stringLength = 'abc'['length'];
 
-//type StrLen<foo extends string> = foo['length'];
 type AddD<A extends string, B extends string> =
   Align<A, B> extends [infer Len extends number, infer M extends number, infer N extends number]
   ? Add<M, N> extends infer R extends number
