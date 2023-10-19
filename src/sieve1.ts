@@ -1,4 +1,4 @@
-type Unit = undefined;
+type Unit = null;
 
 type Length<A extends any[]> = number & A['length'];
 
@@ -21,8 +21,9 @@ true satisfies Assert<Add<3, 4>, 7>;
 type Subtract<A extends number, B extends number> = 
   Tuple<A> extends [...infer U, ...Tuple<B>]
   ? Length<U>
-  : never;
+  : undefined;
 true satisfies Assert<Subtract<5, 3>, 2>;
+true satisfies Assert<Subtract<2, 3>, null>;
 
 type Compare<A extends number, B extends number> = 
   A extends B 
