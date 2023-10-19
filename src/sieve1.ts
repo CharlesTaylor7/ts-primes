@@ -151,3 +151,4 @@ type testInfer = Infer<{foo: 3, bar: 4}>;
 
 type Singleton<Key extends string, Value> = { [K in Key]: Value };
 type testS = Singleton<"foo", 3>
+

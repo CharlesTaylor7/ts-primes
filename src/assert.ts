@@ -5,15 +5,25 @@ type Assert<T, U> =
     : `${Show<T>} != ${Show<U>}`;
 
 type Show<T> = 
-  T extends string | number | bigint | boolean | null | undefined
+  T extends number | bigint | boolean | null | undefined
   ? T
-  : T extends Array<any>
-    ? ShowArray<T>
-    : T extends symbol
-      ? 'some symbol'
-      : 'some object';
+  : T extends string
+    ? `'${T}'`
+    : T extends Array<any>
+      ? ShowArray<T>
+      : T extends symbol
+        ? 'some symbol'
+        : 'some object';
 
-type ShowArray<T extends any[], Acc extends string = ''> = 
+type ShowArray<T extends any[]> = 
+  `[${Join<T, ", ">}]`;
+
+true satisfies Assert<ShowArray<[3,1]>, "[3, 1]">;
+
+type Join<T extends any[], Sep extends string, Acc extends string = ''> = 
   T extends [infer Head, ...infer Tail]
-  ? ShowArray<Tail, Acc extends '' ? Show<Head> : `${Acc}, ${Show<Head>}`>
-  : `[${Acc}]`;
+  ? Join<Tail, Sep, Acc extends '' ? Show<Head> : `${Acc}${Sep}${Show<Head>}`>
+  : Acc;
+
+true satisfies Assert<Join<[3,1], " | ">, "3 | 1">;
+
