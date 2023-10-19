@@ -57,19 +57,34 @@ type GCD<A extends number, B extends number> = A extends 0
 type Wheel = [4, 2, 4, 2, 4, 6, 2, 6 ];
 type WheelSize = Length<Wheel>;
 type IncWheelIndex<I extends number> = Remainder<Add<I, 1>, WheelSize>
+type InitialPrimes = [2, 3, 5];
 
-// all the primes less than bound
 type PrimesUnder<
+  Bound extends number
+> =
+  Compare<Bound, 11> extends 'LT'
+  ? Cap<InitialPrimes, Bound>
+  : PrimesUnderRec<Bound, 7, 0, {}, InitialPrimes>
+
+
+type PrimesUnderRec<
   Bound extends number,
-  N extends number = 7,
-  I extends number = 0,
-  Sieve extends Record<number, boolean> = {},
-  Primes extends number[] = [2, 3, 5],
+  N extends number,
+  I extends number,
+  Sieve extends Record<number, boolean>,
+  Primes extends number[]
 > = Compare<N, Bound> extends 'LT'
   ? Sieve[N] extends true
-    ? PrimesUnder<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, Sieve, Primes>
-    : PrimesUnder<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, MarkSieve<Bound, N, Sieve>, [...Primes, N]>
+    ? PrimesUnderRec<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, Sieve, Primes>
+    : PrimesUnderRec<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, MarkSieve<Bound, N, Sieve>, [...Primes, N]>
   : Primes;
+
+type Cap<T, Bound extends number, Acc extends number[] = []> =
+  T extends [infer Head extends number, ...infer Tail]
+  ? Compare<Head, Bound> extends 'LT'
+    ? Cap<Tail, Bound, [...Acc, Head]>
+    : Cap<Tail, Bound, Acc>
+  : Acc;
 
 type MarkSieve<
   Bound extends number,
@@ -120,16 +135,9 @@ type ShowArray<T extends any[], Acc extends string = ''> = T extends [
   ? ShowArray<Tail, Acc extends '' ? Show<Head> : `${Acc}, ${Show<Head>}`>
   : `[${Acc}]`;
 
-type ShowRecord<T, Acc extends string = ''> = keyof T extends never
-  ? Acc
-  : ShowRecord<Omit<T, 'foo'>, Acc>;
 
-
-type Indexed<T> = {
-  [K in keyof T]: K;
-};
-type testIndexed = Indexed<{ key: 'value' }>;
-
+true satisfies Assert<PrimesUnder<3>, [2]>;
+true satisfies Assert<PrimesUnder<5>, [2,3]>;
 true satisfies Assert<PrimesUnder<16>, [2,3,5,7,11,13]>;
 true satisfies Assert<GCD<28, 35>, 7>;
 true satisfies Assert<Add<3, 4>, 7>;
@@ -139,6 +147,6 @@ true satisfies Assert<
   MarkSieve<10, 3, {4: true}>,
   { 4: true; 6: true; 9: true; }
 >;
-true satisfies Assert<Length<PrimesUnder<504>>, 96>;
+true satisfies Assert<Length<PrimesUnder<509>>, 96>;
 
-type testMaxBound = PrimesUnder<506>;
+type testMaxBound = PrimesUnder<512>;
