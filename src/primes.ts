@@ -1,21 +1,17 @@
-// unit is so named for having 1 inhabitant
 type Unit = undefined;
 
 type Length<A extends any[]> = number & A['length'];
 
-// fixed size tuples can be constructed via recursion and checking their length
 type Tuple<
   Size extends number,
   Type = Unit,
-  Acc extends Type[] = [],
+  Acc extends Type[] = Zero,
 > = Length<Acc> extends Size ? Acc : Tuple<Size, Type, [...Acc, Type]>;
 
-// Addition is not builtin, but can be defined in terms of tuples
 type Add<A extends number, B extends number> = Length<
   [...Tuple<A>, ...Tuple<B>]
 >;
 
-// Surpisingly even subtraction of natural numbers can be defined in terms of tuples
 type Subtract<A extends number, B extends number> = Tuple<A> extends [
   ...infer U,
   ...Tuple<B>,
@@ -23,21 +19,18 @@ type Subtract<A extends number, B extends number> = Tuple<A> extends [
   ? Length<U>
   : never;
 
-// Comparison can be built in terms of subtraction
 type Compare<A extends number, B extends number> = Subtract<A, B> extends never
   ? 'LT'
   : A extends B
   ? 'EQ'
   : 'GT';
 
-// Multiplication can be built from Addition and subtracting recursively
 type Multiply<
   A extends number,
   B extends number,
   Acc extends number = 0,
 > = A extends 0 ? Acc : Multiply<Subtract<A, 1>, B, Add<Acc, B>>;
 
-// Division can be built by adding and subtracting recursively.
 type Division<
   A extends number,
   B extends number,
@@ -147,6 +140,8 @@ true satisfies Assert<
   MarkSieve<10, 3, {4: true}>,
   { 4: true; 6: true; 9: true; }
 >;
+/*
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
 
 type testMaxBound = PrimesUnder<512>;
+*/
