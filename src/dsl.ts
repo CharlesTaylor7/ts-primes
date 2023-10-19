@@ -3,16 +3,18 @@ type Interpret<Program extends string> =
    any;
 //true satisfies Assert<Interpret<"(+ 3 4)">, 7>;
 
-type AdditionParser<Program extends string> =
-  Program extends `(+ ${infer A extends number} ${infer B extends number})`
-  ? Add<A, B>
-  : 'addition parse error';
+type AddF<A extends string, B extends string> =
+  A extends `${infer A1 extends number}.${infer A2 extends number}`
+  ?  B extends `${infer B1 extends number}.${infer B2 extends number}`
+    ? `${Add<Add<A1,B1>, Divide<Add<A2, B2>,10>>}.${Remainder<Add<A2, B2>,10>}`
+    : never
+  : never;
 
-type SubtractionParser<Program extends string> =
-  Program extends `(- ${infer A extends number} ${infer B extends number})`
-  ? Subtract<A, B>
-  : 'subtraction parse error';
-  
+true satisfies Assert<AddF<"3.1", "4.5">, "7.6">;
+true satisfies Assert<AddF<"3.7", "4.5">, "8.2">;
+true satisfies Assert<AddF<"3.71", "4.5">, "8.21">;
+
+
 type OpParser<Program extends string> =
   Program extends 
     `${infer Op extends string} ${infer A extends number} ${infer B extends number}`
