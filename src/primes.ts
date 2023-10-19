@@ -64,10 +64,10 @@ type PrimesUnder<
 > =
   Compare<Bound, 11> extends 'LT'
   ? Cap<InitialPrimes, Bound>
-  : PrimesUnderRec<Bound, 7, 0, {}, InitialPrimes>
+  : PrimesGo<Bound, 7, 0, {}, InitialPrimes>
 
 
-type PrimesUnderRec<
+type PrimesGo<
   Bound extends number,
   N extends number,
   I extends number,
@@ -75,8 +75,8 @@ type PrimesUnderRec<
   Primes extends number[]
 > = Compare<N, Bound> extends 'LT'
   ? Sieve[N] extends true
-    ? PrimesUnderRec<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, Sieve, Primes>
-    : PrimesUnderRec<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, MarkSieve<Bound, N, Sieve>, [...Primes, N]>
+    ? PrimesGo<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, Sieve, Primes>
+    : PrimesGo<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, MarkSieve<Bound, N, Sieve>, [...Primes, N]>
   : Primes;
 
 type Cap<T, Bound extends number, Acc extends number[] = []> =
