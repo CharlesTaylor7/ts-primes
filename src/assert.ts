@@ -4,7 +4,7 @@ type Assert<T, U> =
     ? true
     : `${Show<T>} != ${Show<U>}`;
 
-type Show<T> = 
+type Show<T> =
   T extends number | bigint | boolean | null | undefined
   ? T
   : T extends string
