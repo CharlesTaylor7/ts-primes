@@ -1,6 +1,6 @@
-type OpParser<Program extends string> =
+type OpEval<Program extends string> =
   Program extends 
-    `${infer Op extends string} ${infer A extends number} ${infer B extends number}`
+    `${infer Op} ${infer A extends number} ${infer B extends number}`
   ? Op extends '+'
     ? Add<A, B>
     : Op extends '-'
@@ -11,18 +11,28 @@ type OpParser<Program extends string> =
           ? Divide<A, B>
           : Op extends '%'
             ? Remainder<A, B>
-            : never
-  : never;
+            : `unknown operator: ${Op}`
+  : undefined;
 
-true satisfies Assert<OpParser<"+ 3 4">, 7>;
-true satisfies Assert<OpParser<"- 5 4">, 1>;
-true satisfies Assert<OpParser<"* 5 4">, 20>;
-true satisfies Assert<OpParser<"% 9 4">, 1>;
-true satisfies Assert<OpParser<"/ 9 4">, 2>;
+true satisfies Assert<OpEval<"+ 3 4">, 7>;
+true satisfies Assert<OpEval<"- 5 4">, 1>;
+true satisfies Assert<OpEval<"* 5 4">, 20>;
+true satisfies Assert<OpEval<"% 9 4">, 1>;
+true satisfies Assert<OpEval<"/ 9 4">, 2>;
+true satisfies Assert<OpEval<"# 9 4">, 'unknown operator: #'>;
+true satisfies Assert<OpEval<". 9 4">, 'unknown operator: .'>;
 
-// polish interpreter
-// type Interpret<Program extends string> = any;
-//true satisfies Assert<Interpret<"(+ 3 4)">, 7>;
+// interprets polish notation
+type Interpret<Program extends string> =
+  ParseInt<Program> extends infer N extends number
+  ? N
+  : Program extends `(${infer Inner})`
+    ? OpEval<Inner>
+    : 'unknown'
+
+true satisfies Assert<Interpret<"5">, 5>;
+true satisfies Assert<Interpret<"(+ 3 4)">, 7>;
+true satisfies Assert<Interpret<"(- (+ 3 4) 7">, 0>;
 
 type AddStr<A extends string, B extends string> =
   A extends `${infer A1 extends number}.${infer A2}`
