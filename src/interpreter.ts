@@ -20,7 +20,8 @@ true satisfies Assert<EvalOp<'#', 9, 4>, 'unknown operator: #'>;
 true satisfies Assert<EvalOp<'.', 9, 4>, 'unknown operator: .'>;
 
 type Operator = '+' | '-' | '*' | '%' | '/';
-
+// shunting yard
+// https://www.andreinc.net/2010/10/05/converting-infix-to-rpn-shunting-yard-algorithm
 // interprets polish notation
 type Interpret<Program extends string> =
   IntParser<Program> extends [infer N extends number, infer Rest extends string]
