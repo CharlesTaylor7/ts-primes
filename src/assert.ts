@@ -13,7 +13,9 @@ type Show<T> =
       ? ShowArray<T>
       : T extends symbol
         ? 'some symbol'
-        : 'some object';
+        : unknown extends T
+          ? 'unknown'
+          : 'some object';
 
 type ShowArray<T extends any[]> = 
   `[${Join<T, ", ">}]`;

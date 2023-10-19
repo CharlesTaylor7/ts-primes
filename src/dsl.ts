@@ -1,38 +1,60 @@
-type OpEval<Program extends string> =
-  Program extends 
-    `${infer Op} ${infer A extends number} ${infer B extends number}`
-  ? Op extends '+'
-    ? Add<A, B>
-    : Op extends '-'
-      ? Subtract<A, B>
-      : Op extends '*'
-        ? Multiply<A, B>
-        : Op extends '/'
-          ? Divide<A, B>
-          : Op extends '%'
-            ? Remainder<A, B>
-            : `unknown operator: ${Op}`
-  : undefined;
+type EvalOp<Op extends string, A extends number, B extends number> =
+  Op extends '+'
+  ? Add<A, B>
+  : Op extends '-'
+    ? Subtract<A, B>
+    : Op extends '*'
+      ? Multiply<A, B>
+      : Op extends '/'
+        ? Divide<A, B>
+        : Op extends '%'
+          ? Remainder<A, B>
+          : `unknown operator: ${Op}`
+  
+true satisfies Assert<EvalOp<'+', 3, 4>, 7>;
+true satisfies Assert<EvalOp<'-', 5, 4>, 1>;
+true satisfies Assert<EvalOp<'*', 5, 4>, 20>;
+true satisfies Assert<EvalOp<'/', 9, 4>, 2>;
+true satisfies Assert<EvalOp<'%', 9, 4>, 1>;
+true satisfies Assert<EvalOp<'#', 9, 4>, 'unknown operator: #'>;
+true satisfies Assert<EvalOp<'.', 9, 4>, 'unknown operator: .'>;
 
-true satisfies Assert<OpEval<"+ 3 4">, 7>;
-true satisfies Assert<OpEval<"- 5 4">, 1>;
-true satisfies Assert<OpEval<"* 5 4">, 20>;
-true satisfies Assert<OpEval<"% 9 4">, 1>;
-true satisfies Assert<OpEval<"/ 9 4">, 2>;
-true satisfies Assert<OpEval<"# 9 4">, 'unknown operator: #'>;
-true satisfies Assert<OpEval<". 9 4">, 'unknown operator: .'>;
+type Operator = '+' | '-' | '*' | '%' | '/';
 
 // interprets polish notation
 type Interpret<Program extends string> =
   ParseInt<Program> extends infer N extends number
   ? N
   : Program extends `(${infer Inner})`
-    ? OpEval<Inner>
-    : 'unknown'
+    ? Interpret<Inner>
+    : Program extends `${infer Op extends Operator} ${infer Rest}`
+      ? ParseRest<Rest> extends [infer A extends string, infer B extends string]
+        ? EvalOp<Op, Interpret<A>, Interpret<B>>
+        : never
+      : never;
 
 true satisfies Assert<Interpret<"5">, 5>;
 true satisfies Assert<Interpret<"(+ 3 4)">, 7>;
-true satisfies Assert<Interpret<"(- (+ 3 4) 7">, 0>;
+true satisfies Assert<Interpret<"(- (+ 3 4) 7)">, 0>;
+true satisfies Assert<Interpret<"(- (+ 2 3) (+ 1 2))">, 2>;
+true satisfies Assert<Interpret<"(* 3 (+ 1 2))">, 9>;
+
+type ParseRest<S extends string> =
+  S extends `(${infer A}) (${infer B})`
+  ? [A,B]
+  : S extends `(${infer A}) ${infer B}`
+    ? [A, B]
+    :  S extends `${infer A} (${infer B})`
+      ? [A, B]
+      : S extends `${infer A} ${infer B}`
+        ? [A, B]
+        : undefined
+
+true satisfies Assert<ParseRest<"(2) (4)">, ['2','4']>
+true satisfies Assert<ParseRest<"2 4">, ['2','4']>
+true satisfies Assert<ParseRest<"(+ 1 2) (4)">, ['+ 1 2','4']>
+true satisfies Assert<ParseRest<"(+ 1 2) 4">, ['+ 1 2','4']>
+true satisfies Assert<ParseRest<"4 (+ 1 2)">, ['4', '+ 1 2']>
 
 type AddStr<A extends string, B extends string> =
   A extends `${infer A1 extends number}.${infer A2}`
