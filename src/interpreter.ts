@@ -23,15 +23,17 @@ type Operator = '+' | '-' | '*' | '%' | '/';
 
 // interprets polish notation
 type Interpret<Program extends string> =
-  ParseInt<Program> extends infer N extends number
-  ? N
-  : Program extends `${infer Op extends Operator} ${infer Args}`
-    ? IntParser<Args> extends [infer A extends number, infer Final extends string]
-      ? IntParser<Final> extends [infer B extends number, ""]
-        ? EvalOp<Op, A, B>
-        : never
-      : never
-    : never
+  IntParser<Program> extends [infer N extends number, infer Rest extends string]
+  ? [N, Rest]
+  : OpParser<Program> extends [infer Op extends Operator, infer Args extends string]
+    ? Interpret<Args> extends [infer A extends number, infer Final extends string]
+      ? Interpret<Final> extends [infer B extends number, infer Rest extends string]
+        ? [EvalOp<Op, A, B>, Rest]
+        : 'parse B failed'
+      : 'parse A failed'
+    : 'parse Op failed'
+
+   
 
 true satisfies Assert<Interpret<"5">, 5>;
 true satisfies Assert<Interpret<"+ 3 4">, 7>;
@@ -48,15 +50,23 @@ true satisfies Assert<OpParser<"+ 1 2">, ['+', "1 2"]>;
 true satisfies Assert<OpParser<". 1 2">, undefined>;
 true satisfies Assert<OpParser<"1 2">, undefined>;
 
+type StripLeading<T extends string, C extends string> =
+  T extends `${C}${infer Rest}`
+  ? StripLeading<Rest, C>
+  : T
+
+type DigitParser<T extends string, Acc extends string = ''> =
+  T extends `${infer D extends Digit}${infer Rest}`
+  ? DigitParser<Rest, `${Acc}${D}`>
+  : Acc extends `${infer N extends number}`
+    ? [N, T]
+    : never;
 
 type IntParser<T extends string> =
-  T extends `0${infer Rest}`
-  ? IntParser<Rest>
-  : T extends `${infer N extends number} ${infer Rest}`
-    ? [N, Rest]
-    : undefined;
+  DigitParser<StripLeading<T, '0'>>
 
-true satisfies Assert<IntParser<"023 + 1 2">, [23, "+ 1 2"]>;
+true satisfies Assert<IntParser<"023 + 1 2">, [23, " + 1 2"]>;
+true satisfies Assert<IntParser<"23 + 1 2">, [23, " + 1 2"]>;
 
 type AddStr<A extends string, B extends string> =
   A extends `${infer A1 extends number}.${infer A2}`
