@@ -1,13 +1,11 @@
 type Unit = null;
-type Zero = []
-type One = [Unit]
 
 type Length<A extends any[]> = number & A['length'];
 
 type Tuple<
   Size extends number,
   Type = Unit,
-  Acc extends Type[] = Zero,
+  Acc extends Type[] = [],
 > = Length<Acc> extends Size ? Acc : Tuple<Size, Type, [...Acc, Type]>;
 
 true satisfies Assert<Length<Tuple<999>>, 999>;

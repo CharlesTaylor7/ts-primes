@@ -49,11 +49,20 @@ true satisfies Assert<AddD<'5', '99'>, [1, 49]>
 true satisfies Assert<AddD<'50', '005'>, [0, 505]>
 true satisfies Assert<AddD<'10', '001'>, [0, 101]>
   
+type SafeSubtract<A extends number, B extends number> = 
+  Tuple<A> extends [...infer U, ...Tuple<B>]
+  ? Length<U>
+  : undefined;
+
+true satisfies Assert<SafeSubtract<5, 3>, 2>;
+true satisfies Assert<SafeSubtract<2, 3>, undefined>;
+
 type Align<A extends string, B extends string> =
   [NumDigits<A>, NumDigits<B>] extends [infer M extends number, infer N extends number]
-  ? Subtract<M, N> extends infer R extends number
+  ? SafeSubtract<M, N> extends infer R extends number
+    // @ts-ignore
     ? [M, ParseInt<A>, ParseInt<`${B}${Repeat<R, '0'>}`>]
-    : Subtract<N, M> extends infer R extends number
+    : SafeSubtract<N, M> extends infer R extends number
       ? [N, ParseInt<`${A}${Repeat<R, '0'>}`>, ParseInt<B>]
       : 'failure to subtract'
   : 'failure to match numDigits';
@@ -89,7 +98,11 @@ true satisfies Assert<SplitLeadDigit<30>, { lead: 3, rest: '0' }>;
 true satisfies Assert<SplitLeadDigit<300>, { lead: 3, rest: '00' }>;
 true satisfies Assert<SplitLeadDigit<445>, { lead: 4, rest: '45' }>;
 
-type Repeat<Amount extends number, T extends string, Count extends Num = Zero, Acc extends string = ''> =
+type TNum = Unit[]
+type TZero = []
+type TOne = [Unit]
+
+type Repeat<Amount extends number, T extends string, Count extends TNum = TZero, Acc extends string = ''> =
   Amount extends Length<Count>
   ? Acc
   : Repeat<Amount, T, IncT<Count>, Append<T, Acc>>;
@@ -97,5 +110,5 @@ type Repeat<Amount extends number, T extends string, Count extends Num = Zero, A
 true satisfies Assert<Repeat<3, '.'>, '...'>;
 
 type Append<A extends string | number, B extends string | number> = `${A}${B}`;
-type IncT<Tuple extends Num> = Push<Unit, Tuple>;
+type IncT<Tuple extends TNum> = Push<Unit, Tuple>;
 type Push<T, Tuple extends any[]> = [...Tuple, T];
