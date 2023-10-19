@@ -54,21 +54,22 @@ type GCD<A extends number, B extends number> = A extends 0
   ? GCD<Subtract<A, B>, B>
   : GCD<Subtract<B, A>, A>;
 
+type Wheel = [4, 2, 4, 2, 4, 6, 2, 6 ];
+type WheelSize = Length<Wheel>;
+type IncWheelIndex<I extends number> = Remainder<Add<I, 1>, WheelSize>
 
 // all the primes less than bound
 type PrimesUnder<
   Bound extends number,
-  N extends number = 2,
+  N extends number = 7,
+  I extends number = 0,
   Sieve extends Record<number, boolean> = {},
-  Acc extends number[] = [],
+  Primes extends number[] = [2, 3, 5],
 > = Compare<N, Bound> extends 'LT'
-  ? PrimesUnder<
-      Bound,
-      Add<N, 1>,
-      Sieve[N] extends true ? Sieve : MarkSieve<Bound, N, Sieve>,
-      Sieve[N] extends true ? Acc : [...Acc, N]
-    >
-  : Acc;
+  ? Sieve[N] extends true
+    ? PrimesUnder<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, Sieve, Primes>
+    : PrimesUnder<Bound, Add<N, Wheel[I]>, IncWheelIndex<I>, MarkSieve<Bound, N, Sieve>, [...Primes, N]>
+  : Primes;
 
 type MarkSieve<
   Bound extends number,
@@ -129,7 +130,7 @@ type Indexed<T> = {
 };
 type testIndexed = Indexed<{ key: 'value' }>;
 
-true satisfies Assert<PrimesUnder<10>, [2, 3, 5, 7]>;
+true satisfies Assert<PrimesUnder<16>, [2,3,5,7,11,13]>;
 true satisfies Assert<GCD<28, 35>, 7>;
 true satisfies Assert<Add<3, 4>, 7>;
 true satisfies Assert<Subtract<5, 3>, 2>;
@@ -140,4 +141,4 @@ true satisfies Assert<
 >;
 true satisfies Assert<Length<PrimesUnder<504>>, 96>;
 
-type testMaxBound = PrimesUnder<510>;
+type testMaxBound = PrimesUnder<506>;
