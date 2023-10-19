@@ -8,44 +8,62 @@ type Tuple<
   Acc extends Type[] = Zero,
 > = Length<Acc> extends Size ? Acc : Tuple<Size, Type, [...Acc, Type]>;
 
+true satisfies Assert<Length<Tuple<999>>, 999>;
+
 type Add<A extends number, B extends number> = Length<
   [...Tuple<A>, ...Tuple<B>]
 >;
+true satisfies Assert<Add<3, 4>, 7>;
 
-type Subtract<A extends number, B extends number> = Tuple<A> extends [
-  ...infer U,
-  ...Tuple<B>,
-]
+
+type Subtract<A extends number, B extends number> = 
+  Tuple<A> extends [...infer U, ...Tuple<B>]
   ? Length<U>
   : never;
+true satisfies Assert<Subtract<5, 3>, 2>;
 
-type Compare<A extends number, B extends number> = Subtract<A, B> extends never
-  ? 'LT'
-  : A extends B
+type Compare<A extends number, B extends number> = 
+  A extends B 
   ? 'EQ'
-  : 'GT';
+  : Subtract<A, B> extends never
+    ? 'LT'
+    : 'GT'
+
+true satisfies Assert<Compare<3,3>, 'EQ'>;
+true satisfies Assert<Compare<3,4>, 'LT'>;
+true satisfies Assert<Compare<6,4>, 'GT'>;
 
 type Multiply<
   A extends number,
   B extends number,
   Acc extends number = 0,
-> = A extends 0 ? Acc : Multiply<Subtract<A, 1>, B, Add<Acc, B>>;
+> = 
+  A extends 0 
+  ? Acc 
+  : Multiply<Subtract<A, 1>, B, Add<Acc, B>>;
 
 type Division<
   A extends number,
   B extends number,
   Acc extends number = 0,
-> = Compare<A, B> extends 'LT' ? Acc : Division<Subtract<A, B>, B, Add<1, Acc>>;
+> = 
+  Compare<A, B> extends 'LT' 
+  ? Acc 
+  : Division<Subtract<A, B>, B, Add<1, Acc>>;
 
-type Remainder<A extends number, B extends number> = Compare<A, B> extends 'LT'
+type Remainder<A extends number, B extends number> = 
+  Compare<A, B> extends 'LT'
   ? A
   : Remainder<Subtract<A, B>, B>;
 
-type GCD<A extends number, B extends number> = A extends 0
+type GCD<A extends number, B extends number> = 
+  A extends 0
   ? B
   : Compare<A, B> extends 'GT'
-  ? GCD<Subtract<A, B>, B>
-  : GCD<Subtract<B, A>, A>;
+    ? GCD<Subtract<A, B>, B>
+    : GCD<Subtract<B, A>, A>;
+
+true satisfies Assert<GCD<28, 35>, 7>;
 
 type Wheel = [4, 2, 4, 2, 4, 6, 2, 6 ];
 type WheelSize = Length<Wheel>;
@@ -59,6 +77,10 @@ type PrimesUnder<
   ? Cap<InitialPrimes, Bound>
   : PrimesGo<Bound, 7, 0, {}, InitialPrimes>
 
+true satisfies Assert<PrimesUnder<3>, [2]>;
+true satisfies Assert<PrimesUnder<5>, [2,3]>;
+true satisfies Assert<PrimesUnder<16>, [2, 3, 5, 7, 11, 13]>;
+  
 
 type PrimesGo<
   Bound extends number,
@@ -91,6 +113,12 @@ type MarkSieve<
     >
   ]: true;
 };
+
+true satisfies Assert<
+  MarkSieve<10, 3, {4: true}>,
+  { 4: true; 6: true; 9: true; }
+>;
+
 type Or<A, B> = A | B;
 
 type Under<
@@ -98,6 +126,9 @@ type Under<
   N extends number = 0,
   Acc = never,
 > = N extends Bound ? Acc : Under<Bound, Add<N, 1>, Acc | N>;
+
+true satisfies Assert<Under<3>, 0 | 1 | 2>;
+
 
 type Multiples<
   K extends number,
@@ -108,38 +139,6 @@ type Multiples<
   ? Multiples<K, Bound, Add<N, K>, Acc | N>
   : Acc;
 
-// https://dev.to/ecyrbe/how-to-unit-test-your-typescript-utility-types-3cnm
-type Assert<T, U> = (<V>() => V extends T ? 1 : 2) extends <V>() => V extends U
-  ? 1
-  : 2
-  ? true
-  : `${Show<T>} != ${Show<U>}`;
-
-type Show<T> = T extends number | bigint | boolean | string
-  ? T
-  : T extends Array<any>
-  ? ShowArray<T>
-  : 'record';
-
-type ShowArray<T extends any[], Acc extends string = ''> = T extends [
-  infer Head,
-  ...infer Tail,
-]
-  ? ShowArray<Tail, Acc extends '' ? Show<Head> : `${Acc}, ${Show<Head>}`>
-  : `[${Acc}]`;
-
-
-true satisfies Assert<PrimesUnder<3>, [2]>;
-true satisfies Assert<PrimesUnder<5>, [2,3]>;
-true satisfies Assert<PrimesUnder<16>, [2,3,5,7,11,13]>;
-true satisfies Assert<GCD<28, 35>, 7>;
-true satisfies Assert<Add<3, 4>, 7>;
-true satisfies Assert<Subtract<5, 3>, 2>;
-true satisfies Assert<Under<3>, 0 | 1 | 2>;
-true satisfies Assert<
-  MarkSieve<10, 3, {4: true}>,
-  { 4: true; 6: true; 9: true; }
->;
 /*
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
 

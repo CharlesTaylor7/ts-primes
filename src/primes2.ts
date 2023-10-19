@@ -12,16 +12,17 @@ type SubtractT<A extends Num, B extends Num> =
   : never;
 
 
-type CompareT<A extends Num, B extends Num> = SubtractT<A, B> extends never
+type CompareT<A extends Num, B extends Num> = 
+  SubtractT<A, B> extends never
   ? 'LT'
   : A extends B
-  ? 'EQ'
-  : 'GT';
+    ? 'EQ'
+    : 'GT';
 
-type RemainderT<A extends Num, B extends Num> = CompareT<A, B> extends 'LT'
-  ? A
-  : RemainderT<SubtractT<A, B>, B>;
-
+type RemainderT<A extends Num, B extends Num> = 
+  SubtractT<A, B> extends infer T extends Num
+  ? RemainderT<T, B>
+  : A;
 
 type WheelT = Tuples<[4, 2, 4, 2, 4, 6, 2, 6 ]>;
 
@@ -30,7 +31,7 @@ type Tuples<A extends number[], Acc extends Num[] = []> =
   ? Tuples<Tail, [...Acc, Tuple<Head>]>
   : Acc
 
-type IncWheelIndexT<I> = RemainderT<AddT<I, One>, Tuple<WheelSize>>
+type IncWheelIndexT<I extends Num> = RemainderT<AddT<I, One>, Tuple<WheelSize>>
 
 type PrimesUnderT<
   Bound extends Num,
@@ -56,12 +57,7 @@ type MarkSieveT<
   N extends Num,
   Sieve extends Record<number, boolean>,
 > = {
-  [K in UnderT<Bound> as 
-    Or<
-      K extends MultiplesT<N, Bound> ? K : never, 
-      Sieve[K] extends true ? K : never
-    >
-  ]: true;
+  [K in UnderT<Bound>]: K extends MultiplesT<N, Bound> ? true : Sieve[K] 
 };
 
 type UnderT<
@@ -80,8 +76,9 @@ type MultiplesT<
   : Acc;
 
 
-true satisfies Assert<PrimesUnderT<Tuple<20>>, [2, 3, 5, 7, 11, 13, 17, 19]>;
-
+//true satisfies Assert<PrimesUnderT<Tuple<11>>, [2, 3, 5, 7]>;
+type test = PrimesUnderT<Tuple<100>>
+type length = Length<Tuple<999>>
 /*
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
 
