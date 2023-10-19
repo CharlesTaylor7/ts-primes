@@ -25,36 +25,38 @@ type Operator = '+' | '-' | '*' | '%' | '/';
 type Interpret<Program extends string> =
   ParseInt<Program> extends infer N extends number
   ? N
-  : Program extends `(${infer Inner})`
-    ? Interpret<Inner>
-    : Program extends `${infer Op extends Operator} ${infer Rest}`
-      ? ParseRest<Rest> extends [infer A extends string, infer B extends string]
-        ? EvalOp<Op, Interpret<A>, Interpret<B>>
+  : Program extends `${infer Op extends Operator} ${infer Args}`
+    ? IntParser<Args> extends [infer A extends number, infer Final extends string]
+      ? IntParser<Final> extends [infer B extends number, ""]
+        ? EvalOp<Op, A, B>
         : never
-      : never;
+      : never
+    : never
 
 true satisfies Assert<Interpret<"5">, 5>;
-true satisfies Assert<Interpret<"(+ 3 4)">, 7>;
-true satisfies Assert<Interpret<"(- (+ 3 4) 7)">, 0>;
-true satisfies Assert<Interpret<"(- (+ 2 3) (+ 1 2))">, 2>;
-true satisfies Assert<Interpret<"(* 3 (+ 1 2))">, 9>;
+true satisfies Assert<Interpret<"+ 3 4">, 7>;
+true satisfies Assert<Interpret<"- + 3 4 7">, 0>;
+true satisfies Assert<Interpret<"- + 2 3 + 1 2">, 2>;
+true satisfies Assert<Interpret<"* 3 + 1 2">, 9>;
 
-type ParseRest<S extends string> =
-  S extends `(${infer A}) (${infer B})`
-  ? [A,B]
-  : S extends `(${infer A}) ${infer B}`
-    ? [A, B]
-    :  S extends `${infer A} (${infer B})`
-      ? [A, B]
-      : S extends `${infer A} ${infer B}`
-        ? [A, B]
-        : undefined
+type OpParser<T extends string> =
+  T extends `${infer Op extends Operator} ${infer Rest}`
+  ? [Op, Rest]
+  : undefined
 
-true satisfies Assert<ParseRest<"(2) (4)">, ['2','4']>
-true satisfies Assert<ParseRest<"2 4">, ['2','4']>
-true satisfies Assert<ParseRest<"(+ 1 2) (4)">, ['+ 1 2','4']>
-true satisfies Assert<ParseRest<"(+ 1 2) 4">, ['+ 1 2','4']>
-true satisfies Assert<ParseRest<"4 (+ 1 2)">, ['4', '+ 1 2']>
+true satisfies Assert<OpParser<"+ 1 2">, ['+', "1 2"]>;
+true satisfies Assert<OpParser<". 1 2">, undefined>;
+true satisfies Assert<OpParser<"1 2">, undefined>;
+
+
+type IntParser<T extends string> =
+  T extends `0${infer Rest}`
+  ? IntParser<Rest>
+  : T extends `${infer N extends number} ${infer Rest}`
+    ? [N, Rest]
+    : undefined;
+
+true satisfies Assert<IntParser<"023 + 1 2">, [23, "+ 1 2"]>;
 
 type AddStr<A extends string, B extends string> =
   A extends `${infer A1 extends number}.${infer A2}`
