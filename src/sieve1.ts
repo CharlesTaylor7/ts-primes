@@ -10,6 +10,8 @@ type Tuple<
 
 true satisfies Assert<Length<Tuple<999>>, 999>;
 
+
+// https://softwaremill.com/developing-type-level-algorithms-in-typescript/#basic-algebra
 type Add<A extends number, B extends number> = Length<
   [...Tuple<A>, ...Tuple<B>]
 >;
@@ -42,14 +44,14 @@ type Multiply<
   ? Acc 
   : Multiply<Subtract<A, 1>, B, Add<Acc, B>>;
 
-type Division<
+type Divide<
   A extends number,
   B extends number,
   Acc extends number = 0,
 > = 
   Compare<A, B> extends 'LT' 
   ? Acc 
-  : Division<Subtract<A, B>, B, Add<1, Acc>>;
+  : Divide<Subtract<A, B>, B, Add<1, Acc>>;
 
 type Remainder<A extends number, B extends number> = 
   Compare<A, B> extends 'LT'
@@ -130,7 +132,6 @@ type Under<
 
 true satisfies Assert<Under<3>, 0 | 1 | 2>;
 
-
 type Multiples<
   K extends number,
   Bound extends number,
@@ -141,3 +142,12 @@ type Multiples<
   : Acc;
 
 true satisfies Assert<Multiples<3, 10>, 6 | 9>
+
+type inferProp = { foo: 3 } extends { [K in keyof T]: infer T} ? T : never;
+
+type Infer<Obj> = Obj extends { [K in keyof Obj]: infer V} ? V : never;
+
+type testInfer = Infer<{foo: 3, bar: 4}>;
+
+type Singleton<Key extends string, Value> = { [K in Key]: Value };
+type testS = Singleton<"foo", 3>
