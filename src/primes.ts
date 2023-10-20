@@ -10,13 +10,10 @@ type Tuple<
 
 true satisfies Assert<Length<Tuple<999>>, 999>;
 
-
-// https://softwaremill.com/developing-type-level-algorithms-in-typescript/#basic-algebra
 type Add<A extends number, B extends number> = Length<
   [...Tuple<A>, ...Tuple<B>]
 >;
 true satisfies Assert<Add<3, 4>, 7>;
-
 
 type Subtract<A extends number, B extends number> = 
   Tuple<A> extends [...infer U, ...Tuple<B>]
@@ -24,17 +21,6 @@ type Subtract<A extends number, B extends number> =
   : never;
 true satisfies Assert<Subtract<5, 3>, 2>;
 true satisfies Assert<Subtract<2, 3>, never>;
-
-type Compare<A extends number, B extends number> = 
-  A extends B 
-  ? 'EQ'
-  : Tuple<A> extends [...any, ...Tuple<B>]
-    ? 'GT'
-    : 'LT'
-
-true satisfies Assert<Compare<3,3>, 'EQ'>;
-true satisfies Assert<Compare<3,4>, 'LT'>;
-true satisfies Assert<Compare<6,4>, 'GT'>;
 
 type Multiply<
   A extends number,
@@ -84,6 +70,7 @@ true satisfies Assert<PrimesUnder<3>, [2]>;
 true satisfies Assert<PrimesUnder<5>, [2,3]>;
 true satisfies Assert<PrimesUnder<16>, [2, 3, 5, 7, 11, 13]>;
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
+true satisfies Assert<Length<PrimesUnder<600>>, 96>;
   
 
 type PrimesGo<

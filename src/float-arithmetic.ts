@@ -27,8 +27,6 @@ true satisfies Assert<ParseInt<"004">, 4>;
 true satisfies Assert<ParseInt<"332">, 332>;
 true satisfies Assert<ParseInt<"0abc">, undefined>;
 
-type Digit = Under<10>;
-
 // Why?
 type arrayLength = ['a', 'b', 'c']['length'];
 type stringLength = 'abc'['length'];
@@ -71,13 +69,6 @@ type Align<A extends string, B extends string> =
 true satisfies Assert<Align<'999', '5'>, [3, 999, 500]>
 true satisfies Assert<Align<'5', '999'>, [3, 500, 999]>
 true satisfies Assert<Align<'50', '005'>, [3, 500, 5]>
-
-type NumDigits<A extends string | number, Acc extends number = 0> =
-  `${A}` extends `${Digit}${infer Rest}`
-  ? NumDigits<Rest, Add<Acc, 1>>
-  : Acc;
-
-true satisfies Assert<NumDigits<'43'>, 2>;
 
 type DivRem10<A extends number> =
   `${A}` extends `${infer L extends number}${infer D extends Digit}`
