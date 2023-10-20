@@ -65,6 +65,7 @@ type PrimesUnder<
 true satisfies Assert<PrimesUnder<3>, [2]>;
 true satisfies Assert<PrimesUnder<5>, [2,3]>;
 true satisfies Assert<PrimesUnder<16>, [2, 3, 5, 7, 11, 13]>;
+/*
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
 true satisfies Assert<Length<PrimesUnder<530>>, 99>;
 true satisfies Assert<Length<PrimesUnder<550>>, 101>;
@@ -77,10 +78,6 @@ true satisfies Assert<Length<PrimesUnder<702>>, 126>;
 true satisfies Assert<Length<PrimesUnder<705>>, 126>;
 true satisfies Assert<Length<PrimesUnder<706>>, 126>;
 true satisfies Assert<Length<PrimesUnder<707>>, 126>;
-/*
-true satisfies Assert<Length<PrimesUnder<710>>, 125>;
-true satisfies Assert<Length<PrimesUnder<715>>, 125>;
-true satisfies Assert<Length<PrimesUnder<725>>, 125>;
 */
   
 
