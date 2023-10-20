@@ -120,12 +120,12 @@ true satisfies Assert<
 
 type Or<A, B> = A | B;
 
-type Under<
-  Bound extends number,
-  N extends number = 0,
-  Acc = never,
-> = N extends Bound ? Acc : Under<Bound, Add<N, 1>, Acc | N>;
+type Under<Bound extends number, N extends number = 0, Acc = never> = 
+  N extends Bound
+  ? Acc
+  : Under<Bound, Add<N, 1>, Acc | N>;
 
+true satisfies Assert<Under<number>, never>;
 true satisfies Assert<Under<3>, 0 | 1 | 2>;
 
 type Multiples<

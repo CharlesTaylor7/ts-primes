@@ -62,16 +62,24 @@ type StripLeading<T extends string, C extends string> =
 type DigitParser<T extends string, Acc extends string = ''> =
   T extends `${infer D extends Digit}${infer Rest}`
   ? DigitParser<Rest, `${Acc}${D}`>
-  : Acc extends `${infer N extends number}`
-    ? [N, T]
-    : undefined;
+  : Acc extends ''
+    ? undefined
+    : [Acc, T]
 
 type IntParser<T extends string> =
-  DigitParser<StripLeading<T, '0' | ' '>>
+  DigitParser<StripLeading<T, ' '> > extends [infer N extends string, infer Rest]
+  ? StripLeading<N, '0'> extends `${infer N extends number}`
+    ? [N, Rest]
+    : [0, Rest]
+  : undefined
 
 true satisfies Assert<IntParser<"023 + 1 2">, [23, " + 1 2"]>;
+true satisfies Assert<IntParser<"0 ">, [0, " "]>;
+true satisfies Assert<IntParser<"0 0 0">, [0, " 0 0"]>;
+true satisfies Assert<IntParser<" 00">, [0, ""]>;
 true satisfies Assert<IntParser<"23 + 1 2">, [23, " + 1 2"]>;
 true satisfies Assert<IntParser<" 23 + 1 2">, [23, " + 1 2"]>;
+true satisfies Assert<IntParser<"  + 1 2">, undefined>;
 
 
 // TODO: 
