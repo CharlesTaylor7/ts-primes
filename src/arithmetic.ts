@@ -7,7 +7,7 @@ type NumDigits<A extends string | number, Acc extends number = 0> =
 true satisfies Assert<NumDigits<'43'>, 2>;
 true satisfies Assert<NumDigits<9999>, 4>;
 
-
+/* Comparison */
 type Compare<A extends number, B extends number> = 
   A extends B 
   ? 'EQ'
@@ -47,3 +47,16 @@ type CompareDigits<A extends string, B extends string> =
       : never
     : never
   : never;
+
+/* Addition */
+type Add<A extends number, B extends number> =
+  Length<[...Tuple<A>, ...Tuple<B>]>;
+
+true satisfies Assert<Add<3000, 4000>, 7000>;
+true satisfies Assert<Add<7505, 2505>, 10010>;
+
+type AddSmall<A extends number, B extends number> =
+  Length<[...Tuple<A>, ...Tuple<B>]>;
+
+true satisfies Assert<AddSmall<3, 4>, 7>;
+true satisfies Assert<AddSmall<9, 9>, 18>;
