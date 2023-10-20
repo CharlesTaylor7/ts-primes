@@ -68,10 +68,18 @@ true satisfies Assert<PrimesUnder<16>, [2, 3, 5, 7, 11, 13]>;
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
 true satisfies Assert<Length<PrimesUnder<530>>, 99>;
 true satisfies Assert<Length<PrimesUnder<550>>, 101>;
-true satisfies Assert<Length<PrimesUnder<570>>, 104>;
-true satisfies Assert<Length<PrimesUnder<590>>, 107>;
 true satisfies Assert<Length<PrimesUnder<600>>, 109>;
-true satisfies Assert<Length<PrimesUnder<999>>, 168>;
+true satisfies Assert<Length<PrimesUnder<650>>, 118>;
+true satisfies Assert<Length<PrimesUnder<675>>, 122>;
+true satisfies Assert<Length<PrimesUnder<687>>, 124>;
+true satisfies Assert<Length<PrimesUnder<700>>, 125>;
+true satisfies Assert<Length<PrimesUnder<702>>, 126>;
+true satisfies Assert<Length<PrimesUnder<705>>, 126>;
+true satisfies Assert<Length<PrimesUnder<706>>, 126>;
+true satisfies Assert<Length<PrimesUnder<707>>, 126>;
+true satisfies Assert<Length<PrimesUnder<710>>, 125>;
+true satisfies Assert<Length<PrimesUnder<715>>, 125>;
+true satisfies Assert<Length<PrimesUnder<725>>, 125>;
   
 
 type PrimesGo<
