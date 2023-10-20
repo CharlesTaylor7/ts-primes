@@ -36,10 +36,9 @@ type EvalRPN<Program extends string, Stack extends number[] = []> =
       ? Result
       : 'parse failure'
 
-type testP = IntParser<"">;
-
 true satisfies Assert<EvalRPN<"3">, 3>;
 true satisfies Assert<EvalRPN<"">, 'parse failure'>;
+true satisfies Assert<EvalRPN<"+">, 'not enough on stack'>;
 true satisfies Assert<EvalRPN<"3 3 +">, 6>;
 true satisfies Assert<EvalRPN<"4 3 -">, 1>;
 true satisfies Assert<EvalRPN<"4 5 * 4 -">, 16>;
