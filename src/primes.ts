@@ -8,9 +8,8 @@ type Tuple<
   Acc extends Type[] = [],
 > = Length<Acc> extends Size ? Acc : Tuple<Size, Type, [...Acc, Type]>;
 
+true satisfies Assert<Tuple<4, '.'>, ['.', '.', '.', '.']>;
 true satisfies Assert<Length<Tuple<999>>, 999>;
-
-
 
 type Subtract<A extends number, B extends number> = 
   Tuple<A> extends [...infer U, ...Tuple<B>]
@@ -67,10 +66,12 @@ true satisfies Assert<PrimesUnder<3>, [2]>;
 true satisfies Assert<PrimesUnder<5>, [2,3]>;
 true satisfies Assert<PrimesUnder<16>, [2, 3, 5, 7, 11, 13]>;
 true satisfies Assert<Length<PrimesUnder<509>>, 96>;
-true satisfies Assert<Length<PrimesUnder<530>>, 109>;
+true satisfies Assert<Length<PrimesUnder<530>>, 99>;
+true satisfies Assert<Length<PrimesUnder<550>>, 101>;
+true satisfies Assert<Length<PrimesUnder<570>>, 104>;
+true satisfies Assert<Length<PrimesUnder<590>>, 107>;
 true satisfies Assert<Length<PrimesUnder<600>>, 109>;
-true satisfies Assert<Length<PrimesUnder<999>>, 109>;
-true satisfies Assert<Length<PrimesUnder<9999>>, 109>;
+true satisfies Assert<Length<PrimesUnder<999>>, 168>;
   
 
 type PrimesGo<
