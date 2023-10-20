@@ -99,6 +99,7 @@ type Repeat<Amount extends number, T extends string, Count extends TNum = TZero,
   : Repeat<Amount, T, IncT<Count>, Append<T, Acc>>;
 
 true satisfies Assert<Repeat<3, '.'>, '...'>;
+true satisfies Assert<Repeat<5, '-'>, Join<Tuple<5, '-'>, ', '>>;
 
 type Append<A extends string | number, B extends string | number> = `${A}${B}`;
 type IncT<Tuple extends TNum> = Push<Unit, Tuple>;

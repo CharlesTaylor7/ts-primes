@@ -18,14 +18,14 @@ type Show<T> =
           : 'some object';
 
 type ShowArray<T extends any[]> = 
-  `[${Join<T, ", ">}]`;
+  `[${ShowJoin<T, ", ">}]`;
 
 true satisfies Assert<ShowArray<[3,1]>, "[3, 1]">;
 
-type Join<T extends any[], Sep extends string, Acc extends string = ''> = 
+type ShowJoin<T extends any[], Sep extends string, Acc extends string = ''> = 
   T extends [infer Head, ...infer Tail]
-  ? Join<Tail, Sep, Acc extends '' ? Show<Head> : `${Acc}${Sep}${Show<Head>}`>
+  ? ShowJoin<Tail, Sep, Acc extends '' ? Show<Head> : `${Acc}${Sep}${Show<Head>}`>
   : Acc;
 
-true satisfies Assert<Join<[3,1], " | ">, "3 | 1">;
+true satisfies Assert<ShowJoin<[3,1], " | ">, "3 | 1">;
 

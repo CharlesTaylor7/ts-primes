@@ -44,15 +44,18 @@ true satisfies Assert<EvalRPN<"4 3 -">, 1>;
 true satisfies Assert<EvalRPN<"4 5 * 4 -">, 16>;
 
 type OpParser<T extends string> =
-  StripLeading<T, ' '> extends `${infer Op extends Operator}${infer Rest}`
-  ? [Op, Rest]
-  : undefined
+  LitParser<T, Operator>
 
 true satisfies Assert<OpParser<"+ 1 2">, ['+', " 1 2"]>;
 true satisfies Assert<OpParser<" + 1 2">, ['+', " 1 2"]>;
 true satisfies Assert<OpParser<" +1 2">, ['+', "1 2"]>;
 true satisfies Assert<OpParser<". 1 2">, undefined>;
 true satisfies Assert<OpParser<"1 2">, undefined>;
+
+type LitParser<T extends string, Lit extends string> =
+  StripLeading<T, ' '> extends `${infer L extends Lit}${infer Rest}`
+  ? [L, Rest]
+  : undefined
 
 type StripLeading<T extends string, C extends string> =
   T extends `${C}${infer Rest}`
@@ -85,6 +88,36 @@ type AsInt<N extends number> = IntParser<`${N}`> extends [N, ""] ? N : never;
 true satisfies Assert<AsInt<3.14>, never>;
 true satisfies Assert<AsInt<3>, 3>;
 
+type Join<T extends string[], Sep extends string, Acc extends string = ''> = 
+  T extends [infer Head extends string, ...infer Tail]
+  ? ShowJoin<Tail, Sep, Acc extends '' ? Head : `${Acc}${Sep}${Head}`>
+  : Acc;
+
+type Split<T extends string, Sep extends string, Acc extends string[] = []> = 
+  T extends `${infer Item}${Sep}${infer Rest}`
+  ? Split<Rest, Sep, [...Acc, Item]>
+  : [...Acc, T];
+
+true satisfies Assert<Split<"3,2,1,", ",">, ["3","2","1",""]>
+
+type StrToken = Operator | '(' | ')'
+type Token = number | Operator | '(' | ')' 
+type Tokenize<T extends string, Acc extends Token[] = []> =
+  T extends ''
+  ? Acc
+  : LitParser<T, StrToken> extends [
+      infer Token extends StrToken, 
+      infer Rest extends string
+    ]
+    ? Tokenize<Rest, [...Acc, Token]>
+    : IntParser<T> extends [infer Num extends number, infer Rest extends string]
+      ? Tokenize<Rest, [...Acc, Num]>
+      : undefined;
+
+
+true satisfies Assert<Tokenize<"34 + 43 ) ( ( *">, [34, "+", 43, ")", "(", "(", "*"]>;
+
+// type Split<
 // TODO: 
 // - RPN evaluator
 // - Eval infix notation
@@ -93,7 +126,7 @@ true satisfies Assert<AsInt<3>, 3>;
 // https://www.andreinc.net/2010/10/05/converting-infix-to-rpn-shunting-yard-algorithm
 // interprets polish notation
 /*
-type Interpret<Program extends string> =
+type Shunt<Program extends string> =
   IntParser<Program> extends [infer N extends number, infer Rest extends string]
   ? [N, Rest]
   : OpParser<Program> extends [infer Op extends Operator, infer Args extends string]
