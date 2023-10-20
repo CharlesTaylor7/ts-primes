@@ -81,6 +81,9 @@ true satisfies Assert<IntParser<"23 + 1 2">, [23, " + 1 2"]>;
 true satisfies Assert<IntParser<" 23 + 1 2">, [23, " + 1 2"]>;
 true satisfies Assert<IntParser<"  + 1 2">, undefined>;
 
+type AsInt<N extends number> = IntParser<`${N}`> extends [N, ""] ? N : never;
+true satisfies Assert<AsInt<3.14>, never>;
+true satisfies Assert<AsInt<3>, 3>;
 
 // TODO: 
 // - RPN evaluator
