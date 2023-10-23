@@ -101,7 +101,7 @@ type Split<T extends string, Sep extends string, Acc extends string[] = []> =
 true satisfies Assert<Split<"3,2,1,", ",">, ["3","2","1",""]>
 
 type StrToken = Operator | '(' | ')'
-type Token = number | Operator | '(' | ')' 
+type Token = number | StrToken
 type Tokenize<T extends string, Acc extends Token[] = []> =
   T extends ''
   ? Acc
@@ -115,7 +115,7 @@ type Tokenize<T extends string, Acc extends Token[] = []> =
       : undefined;
 
 
-true satisfies Assert<Tokenize<"34 + 43 ) ( ( *">, [34, "+", 43, ")", "(", "(", "*"]>;
+true satisfies Assert<Tokenize<" 34  +43 ) ( ( *">, [34, "+", 43, ")", "(", "(", "*"]>;
 
 // type Split<
 // TODO: 

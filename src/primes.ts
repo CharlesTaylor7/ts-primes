@@ -6,10 +6,16 @@ type Tuple<
   Size extends number,
   Type = Unit,
   Acc extends Type[] = [],
-> = Length<Acc> extends Size ? Acc : Tuple<Size, Type, [...Acc, Type]>;
+> = 
+  Length<Acc> extends Size 
+  ? Acc 
+  : Tuple<Size, Type, [...Acc, Type]>;
 
 true satisfies Assert<Tuple<4, '.'>, ['.', '.', '.', '.']>;
 true satisfies Assert<Length<Tuple<999>>, 999>;
+
+type Add<A extends number, B extends number> =
+  Length<[...Tuple<A>, ...Tuple<B>]>;
 
 type Subtract<A extends number, B extends number> = 
   Tuple<A> extends [...infer U, ...Tuple<B>]
